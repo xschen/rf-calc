@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <title>A Calculator of Various RF stuff.</title>
+</head>
+
+<body>
+  <div class="container">
+    <div id="impedance">
+      <div>
+        <label>Freq (Hz)</label>
+        <input type="text" v-model="freq.raw">
+      </div>
+      <div>
+        <label>Cap (F)</label>
+        <input type="text" v-model="cap.raw" @change="calc_imp_c">
+        {{ cap.impedance }}
+      </div>
+      <div>
+        <label>Ind (H)</label>
+        <input type="text" v-model="ind.raw">
+        {{ ind.impedance }}
+      </div>
+    </div>
+  
+  </div>
+
+<script>
+const table_suffix = {
+  "G": 1e9,
+  "M": 1e6,
+  "K": 1e3,
+  "k": 1e3,
+  "m": 1e-3,
+  "u": 1e-6,
+  "n": 1e-9,
+  "p": 1e-12,
+  "f": 1e-15
+}
+const app = new Vue({
+  el: "#impedance",
+  data: {
+    freq: {
+      raw: "",
+      value: "",
+    },
+    cap: {
+      raw: "",
+      value: 0,
+      impedance: 0,
+    },
+    ind: {
+      raw: "",
+      value: 0,
+      impedance: 0,
+    }
+  },
+  methods: {
+    convert_raw_to_value: function (raw) {
+      let len = raw.length
+      if(len > 1) {
+        let raw_last_char = raw.charAt(len-1)
+        let raw_number = raw.slice(0, len-1)
+        if(raw_last_char in table_suffix) {
+          let modifier = table_suffix[raw_last_char]
+          let value = parseFloat(raw_number) * modifier
+          return value
+        } else {
+          return "not recognized."
+        }
+      } else {
+        return "keep typing"
+      }
+    },
+    calc_imp_c: function () {
+      this.cap.value = this.convert_raw_to_value(this.cap.raw)
+      this.freq.value = this.convert_raw_to_value(this.freq.raw)
+      this.cap.impedance = 1 / (2 * 3.1415926 * this.freq.value * this.cap.value)
+    },
+  }
+})
+</script>
+
+
+</body>
+
+</html>
+
